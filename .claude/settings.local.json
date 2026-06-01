@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:kagszo-school-time-table-managment.vercel.app)",
+      "Bash(node -e \"require\\('./server'\\)\")"
+    ]
+  }
+}

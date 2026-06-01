@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"><title>School Timetable Portal</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="user.css">
+  <script src="/common/toast.js"></script>
+  <script src="/common/loading.js"></script>
+  <script src="/common/mobile-menu.js"></script>
+</head>
+<body>
+  <header class="header">
+    <div class="brand"><div class="logo">🏫</div><div><div id="school" class="school">Kagzso School</div><div class="tag">Timetable Portal</div></div></div>
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">☰</button>
+    <div class="controls">
+      <button id="homeBtn" class="home-btn">Home</button>
+      <button id="leaveApplyBtn" class="leave-btn">Leave Apply</button>
+      <button id="logoutBtn" class="home-btn" style="display:none;background:rgba(239,68,68,0.08);border-color:rgba(239,68,68,0.3);color:#ef4444">🚪 Logout</button>
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close">×</button>
+    <a href="/" class="mobile-menu-item" id="mobileHomeItem">🏠 Home</a>
+    <button class="mobile-menu-item" onclick="document.getElementById('leaveApplyBtn').click(); closeMobileMenu();">📅 Apply Leave</button>
+    <a href="/admin/index.html" class="mobile-menu-item">⚙️ Admin Portal</a>
+    <button class="mobile-menu-item" id="mobileLogoutItem" style="display:none;color:#ef4444" onclick="document.getElementById('logoutBtn').click(); closeMobileMenu();">🚪 Logout</button>
+  </div>
+
+  <main class="main">
+    <div class="search"><input id="search" placeholder="Search by class, teacher, subject..." /></div>
+    <div class="classes" id="classes"></div>
+
+    <div id="viewArea" class="view-area" style="display:none">
+      <div class="view-header">
+        <h2 id="viewTitle">Class Timetable</h2>
+        <div class="tabs">
+          <button id="tabClass" class="tab active">Class Timetable</button>
+          <button id="tabTeacher" class="tab">Teacher Login</button>
+        </div>
+      </div>
+      <div id="matrixArea" class="matrix-area"></div>
+      <div id="publishedInfo" class="published-info"></div>
+
+    </div>
+    <div id="leaveSection" class="leave-section" style="display:none">
+  <h2>Apply for Leave</h2>
+
+  <!-- Status Cards -->
+  <div class="leave-cards-section">
+    <div class="leave-cards-title">📌 Your Leave History</div>
+    <div id="leaveCards" class="leave-cards"></div>
+  </div>
+
+  <div class="leave-form-title">✏️ New Leave Request</div>
+
+  <!-- Leave Form -->
+  <form id="leaveForm" class="leave-form">
+    <div class="field-group field-full">
+      <label for="leaveTeacher"><span class="field-icon">👤</span> Select Teacher</label>
+      <div class="select-wrapper">
+        <select id="leaveTeacher" required></select>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <label for="leaveStart"><span class="field-icon">📅</span> Start Date</label>
+      <input type="date" id="leaveStart" required>
+    </div>
+
+    <div class="field-group">
+      <label for="leaveEnd"><span class="field-icon">📅</span> End Date</label>
+      <input type="date" id="leaveEnd" required>
+    </div>
+
+    <div class="field-group field-full">
+      <label for="leaveReason"><span class="field-icon">📝</span> Reason <span style="font-weight:400;color:#9ca3af;text-transform:none;letter-spacing:0">(max 30 words)</span></label>
+      <textarea id="leaveReason" maxlength="200" required placeholder="Briefly describe your reason..."></textarea>
+    </div>
+
+    <button type="submit" class="submit-btn">Submit Leave Request</button>
+  </form>
+</div>
+
+  </main>
+<script src="user.js"></script>
+</body>
+</html>

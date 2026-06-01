@@ -1,0 +1,10 @@
+node_modules
+*.md
+output/*.json
+!output/.gitkeep
+.git
+.env.local
+.DS_Store
+
+
+

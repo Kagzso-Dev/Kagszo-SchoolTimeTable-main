@@ -1,0 +1,1302 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>School Admin Portal</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="dashboard.css">
+  <script src="/common/toast.js"></script>
+  <script src="/common/loading.js"></script>
+  <script src="/common/mobile-menu.js"></script>
+  <style>
+    /* ── Blur / hero overlay wrapper ────────────────────── */
+    .blur-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+      z-index: 500;
+      backdrop-filter: none;
+      background: none;
+    }
+
+    /* ── Full-screen hero section ────────────────────────── */
+    .admin-hero {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background:
+        url('https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?w=3840&q=90&auto=format&fit=crop')
+        center / cover no-repeat;
+    }
+
+    /* Layered gradient overlay — deep at edges, clearer center */
+    .admin-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(0,8,30,0.70) 0%, rgba(0,8,30,0.45) 40%, rgba(0,8,30,0.72) 100%),
+        linear-gradient(to right,  rgba(0,8,30,0.50) 0%, transparent 40%, transparent 60%, rgba(0,8,30,0.50) 100%);
+    }
+
+    /* ── Subtle animated light beam ──────────────────────── */
+    .admin-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 50% at 50% 45%, rgba(25,118,210,0.18) 0%, transparent 70%);
+      animation: heroBeamPulse 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes heroBeamPulse {
+      0%, 100% { opacity: 0.7; transform: scale(1); }
+      50%       { opacity: 1;   transform: scale(1.05); }
+    }
+
+    /* ── Floating orbs ────────────────────────────────────── */
+    .admin-hero-orb {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: heroOrbFloat 14s ease-in-out infinite;
+    }
+    .admin-hero-orb-1 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(60, 140, 255, 0.15), transparent 70%);
+      top: -200px; left: -160px;
+      animation-duration: 15s;
+    }
+    .admin-hero-orb-2 {
+      width: 340px; height: 340px;
+      background: radial-gradient(circle, rgba(20, 100, 210, 0.13), transparent 70%);
+      bottom: -130px; right: -100px;
+      animation-duration: 18s;
+      animation-delay: -8s;
+    }
+    .admin-hero-orb-3 {
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(130, 200, 255, 0.10), transparent 70%);
+      top: 20%; right: 10%;
+      animation-duration: 12s;
+      animation-delay: -4s;
+    }
+
+    @keyframes heroOrbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%       { transform: translate(28px, -34px) scale(1.07); }
+      66%       { transform: translate(-20px, 24px) scale(0.93); }
+    }
+
+    /* ── Glassmorphism card panel ─────────────────────────── */
+    .admin-hero-card {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 660px;
+      width: 90%;
+      padding: 52px 56px 48px;
+      background: rgba(255, 255, 255, 0.07);
+      backdrop-filter: blur(28px) saturate(160%);
+      -webkit-backdrop-filter: blur(28px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 32px;
+      box-shadow:
+        0 40px 90px rgba(0, 0, 0, 0.50),
+        inset 0 1px 0 rgba(255, 255, 255, 0.18);
+      animation: heroCardIn 0.9s cubic-bezier(0.34, 1.15, 0.64, 1) both;
+    }
+
+    @keyframes heroCardIn {
+      from { opacity: 0; transform: translateY(52px) scale(0.92); filter: blur(8px); }
+      60%  { filter: blur(0); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Top label tag */
+    .admin-hero-tag {
+      display: inline-block;
+      background: rgba(25, 118, 210, 0.30);
+      border: 1px solid rgba(100, 180, 255, 0.40);
+      color: rgba(180, 220, 255, 0.95);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      padding: 6px 18px;
+      border-radius: 50px;
+      margin-bottom: 24px;
+      animation: heroFadeDown 0.6s ease 0.25s both;
+    }
+
+    /* School icon */
+    .admin-hero-icon {
+      display: block;
+      font-size: 72px;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.45));
+      animation: heroIconPop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 0.35s both;
+    }
+
+    @keyframes heroIconPop {
+      0%   { opacity: 0; transform: scale(0.2) rotate(-18deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    /* School name */
+    .admin-hero-school {
+      color: rgba(180, 220, 255, 0.80);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin: 0 0 6px;
+      animation: heroFadeDown 0.6s ease 0.45s both;
+    }
+
+    /* Main headline */
+    .admin-hero-title {
+      color: #ffffff;
+      font-size: 50px;
+      font-weight: 800;
+      margin: 0 0 8px;
+      line-height: 1.05;
+      letter-spacing: -1.5px;
+      text-shadow: 0 4px 28px rgba(0, 0, 0, 0.60);
+      animation: heroFadeDown 0.7s ease 0.52s both;
+    }
+
+    /* Portal subtitle */
+    .admin-hero-subtitle {
+      color: rgba(255,255,255,0.55);
+      font-size: 15px;
+      font-weight: 500;
+      margin: 0 0 28px;
+      letter-spacing: 0.5px;
+      animation: heroFadeDown 0.6s ease 0.60s both;
+    }
+
+    /* Divider */
+    .admin-hero-divider {
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, rgba(100,180,255,0.80), transparent);
+      border-radius: 4px;
+      margin: 0 auto 28px;
+      animation: heroDividerGrow 0.6s ease 0.65s both;
+    }
+
+    @keyframes heroDividerGrow {
+      from { opacity: 0; width: 0; }
+      to   { opacity: 1; width: 60px; }
+    }
+
+    /* Description */
+    .admin-hero-desc {
+      color: rgba(255, 255, 255, 0.62);
+      font-size: 14.5px;
+      line-height: 1.7;
+      margin: 0 0 30px;
+      animation: heroFadeUp 0.6s ease 0.70s both;
+    }
+
+    /* Feature badges */
+    .admin-hero-badges {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+      animation: heroFadeUp 0.6s ease 0.78s both;
+    }
+
+    .admin-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255, 255, 255, 0.09);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: rgba(255, 255, 255, 0.88);
+      padding: 9px 20px;
+      border-radius: 50px;
+      font-size: 12.5px;
+      font-weight: 600;
+      font-family: 'Poppins', sans-serif;
+      letter-spacing: 0.3px;
+      transition: background 0.22s ease, transform 0.22s ease, border-color 0.22s ease;
+      cursor: default;
+    }
+
+    .admin-hero-badge:hover {
+      background: rgba(25, 118, 210, 0.28);
+      border-color: rgba(100, 180, 255, 0.45);
+      transform: translateY(-3px);
+    }
+
+    /* CTA button */
+    .admin-hero-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      background: linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%);
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      padding: 17px 50px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+      letter-spacing: 0.5px;
+      box-shadow: 0 14px 40px rgba(13, 71, 161, 0.65), 0 0 0 1px rgba(255,255,255,0.08) inset;
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+      position: relative;
+      overflow: hidden;
+      animation: heroFadeUp 0.6s ease 0.88s both;
+    }
+
+    /* Shimmer sweep */
+    .admin-hero-btn::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -80%;
+      width: 55%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.30), transparent);
+      animation: heroShimmer 2.6s ease infinite 1.8s;
+    }
+
+    @keyframes heroShimmer {
+      0%   { left: -80%; }
+      100% { left: 160%; }
+    }
+
+    .admin-hero-btn:hover {
+      transform: translateY(-4px) scale(1.025);
+      box-shadow: 0 22px 54px rgba(13, 71, 161, 0.75), 0 0 0 1px rgba(255,255,255,0.12) inset;
+    }
+
+    .admin-hero-btn:active { transform: translateY(-1px); }
+
+    /* Arrow icon in button */
+    .admin-hero-btn-arrow {
+      font-size: 18px;
+      transition: transform 0.22s ease;
+    }
+    .admin-hero-btn:hover .admin-hero-btn-arrow {
+      transform: translateX(4px);
+    }
+
+    @keyframes heroFadeUp   { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes heroFadeDown { from { opacity: 0; transform: translateY(-14px);} to { opacity: 1; transform: translateY(0); } }
+
+    /* ═══════════════════════════════════════════════
+       PAGE TRANSITION LOADER — GLASSMORPHISM
+       ═══════════════════════════════════════════════ */
+
+    /* Full-screen frosted glass backdrop over the hero photo */
+    #adminLoader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 15, 55, 0.52);
+      backdrop-filter: blur(26px) saturate(180%);
+      -webkit-backdrop-filter: blur(26px) saturate(180%);
+      opacity: 0;
+      pointer-events: none;
+      clip-path: circle(0% at 50% 85%);
+    }
+
+    #adminLoader.loader-enter {
+      pointer-events: all;
+      animation: loaderRippleIn 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes loaderRippleIn {
+      0%   { clip-path: circle(0% at 50% 85%);   opacity: 0; }
+      18%  { opacity: 1; }
+      100% { clip-path: circle(160% at 50% 85%); opacity: 1; }
+    }
+
+    #adminLoader.loader-exit {
+      animation: loaderRippleOut 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes loaderRippleOut {
+      0%   { clip-path: circle(160% at 50% 50%); opacity: 1; }
+      100% { clip-path: circle(0% at 50% 50%);   opacity: 0; }
+    }
+
+    /* Glass card — the loader panel */
+    .loader-inner {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.10);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, 0.20);
+      border-radius: 32px;
+      padding: 52px 64px 48px;
+      box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.40),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+      animation: loaderCardIn 0.45s cubic-bezier(0.34, 1.3, 0.64, 1) 0.20s both;
+    }
+
+    @keyframes loaderCardIn {
+      from { opacity: 0; transform: scale(0.82) translateY(24px); filter: blur(6px); }
+      60%  { filter: blur(0); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* Spinner wrap */
+    .loader-ring-wrap {
+      position: relative;
+      width: 108px;
+      height: 108px;
+      margin: 0 auto 24px;
+    }
+
+    /* Outer slow ring — glowing blue */
+    .loader-ring-outer {
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.08);
+      border-bottom-color: rgba(100, 190, 255, 0.75);
+      border-left-color:  rgba(100, 190, 255, 0.30);
+      animation: loaderSpin 1.6s linear infinite reverse;
+      filter: drop-shadow(0 0 6px rgba(80,160,255,0.55));
+    }
+
+    /* Inner fast ring — white arc */
+    .loader-ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2.5px solid rgba(255, 255, 255, 0.10);
+      border-top-color: rgba(255, 255, 255, 0.95);
+      border-right-color: rgba(255, 255, 255, 0.40);
+      animation: loaderSpin 0.85s linear infinite;
+    }
+
+    /* Glass circle behind the emoji */
+    .loader-emoji-bg {
+      position: absolute;
+      inset: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(8px);
+    }
+
+    .loader-emoji {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 44px;
+      animation: loaderEmojiBeat 1.1s ease-in-out infinite alternate;
+      filter: drop-shadow(0 2px 10px rgba(80,160,255,0.55));
+    }
+
+    @keyframes loaderEmojiBeat {
+      from { transform: scale(0.90); }
+      to   { transform: scale(1.10); filter: drop-shadow(0 4px 18px rgba(80,160,255,0.80)); }
+    }
+
+    @keyframes loaderSpin { to { transform: rotate(360deg); } }
+
+    /* Text */
+    .loader-school {
+      color: rgba(180, 220, 255, 0.65);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      font-family: 'Poppins', sans-serif;
+      margin-bottom: 5px;
+      animation: loaderTextIn 0.4s ease 0.45s both;
+    }
+
+    .loader-title {
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 700;
+      font-family: 'Poppins', sans-serif;
+      letter-spacing: -0.4px;
+      margin-bottom: 24px;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.35);
+      animation: loaderTextIn 0.4s ease 0.52s both;
+    }
+
+    @keyframes loaderTextIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Glass progress bar */
+    .loader-bar-wrap {
+      width: 200px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 6px;
+      margin: 0 auto;
+      overflow: hidden;
+      animation: loaderTextIn 0.4s ease 0.58s both;
+    }
+
+    .loader-bar {
+      height: 100%;
+      background: linear-gradient(90deg,
+        rgba(100,180,255,0.0),
+        rgba(200,230,255,0.95),
+        rgba(255,255,255,1.0),
+        rgba(200,230,255,0.95),
+        rgba(100,180,255,0.0)
+      );
+      background-size: 250% 100%;
+      border-radius: 6px;
+      animation: loaderBarGlow 1.1s ease-in-out infinite;
+    }
+
+    @keyframes loaderBarGlow {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ═══════════════════════════════════════════════
+       ADMIN LOGIN — FULL-SCREEN BACKGROUND & MOTION
+       ═══════════════════════════════════════════════ */
+
+    /* Background image fills the login modal */
+    #loginModal {
+      background: url('https://images.unsplash.com/photo-1591123120675-6f7f1aae0e5b?w=3840&q=90&auto=format&fit=crop') center / cover no-repeat;
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    /* Dark-blue gradient overlay on the image */
+    .modal-overlay.refined {
+      background: linear-gradient(
+        135deg,
+        rgba(0, 10, 40, 0.80) 0%,
+        rgba(0, 60, 150, 0.62) 55%,
+        rgba(25, 118, 210, 0.48) 100%
+      ) !important;
+      backdrop-filter: blur(1px) !important;
+      animation: overlayReveal 1s ease forwards;
+    }
+
+    @keyframes overlayReveal {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* Floating decorative orbs */
+    .login-orb {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+      animation: orbFloat 12s ease-in-out infinite;
+    }
+    .login-orb-1 {
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, rgba(100, 170, 255, 0.20), transparent 70%);
+      top: -140px; left: -100px;
+      animation-duration: 11s;
+    }
+    .login-orb-2 {
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, rgba(25, 118, 210, 0.18), transparent 70%);
+      bottom: -90px; right: -70px;
+      animation-duration: 14s;
+      animation-delay: -5s;
+    }
+    .login-orb-3 {
+      width: 150px; height: 150px;
+      background: radial-gradient(circle, rgba(120, 200, 255, 0.14), transparent 70%);
+      top: 35%; right: 8%;
+      animation-duration: 9s;
+      animation-delay: -2.5s;
+    }
+    .login-orb-4 {
+      width: 100px; height: 100px;
+      background: radial-gradient(circle, rgba(180, 220, 255, 0.12), transparent 70%);
+      bottom: 20%; left: 6%;
+      animation-duration: 7s;
+      animation-delay: -1s;
+    }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      25%       { transform: translate(22px, -28px) scale(1.06); }
+      50%       { transform: translate(-16px, 18px) scale(0.94); }
+      75%       { transform: translate(12px, -10px) scale(1.03); }
+    }
+
+    /* Glassmorphism login card */
+    .modal-content.refined {
+      background: rgba(255, 255, 255, 0.10) !important;
+      backdrop-filter: blur(22px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(22px) saturate(180%) !important;
+      border: 1px solid rgba(255, 255, 255, 0.26) !important;
+      box-shadow:
+        0 32px 80px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
+      border-radius: 26px !important;
+      padding: 0 !important;
+      width: 420px !important;
+      animation: cardEntrance 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) both !important;
+      overflow: hidden;
+    }
+
+    @keyframes cardEntrance {
+      0%   { opacity: 0; transform: translateY(70px) scale(0.78); filter: blur(12px); }
+      60%  { filter: blur(0); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Welcome banner inside the card */
+    .login-welcome-banner {
+      padding: 28px 36px 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .login-welcome-icon {
+      font-size: 52px;
+      display: block;
+      margin-bottom: 10px;
+      animation: iconPop 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) 0.25s both;
+    }
+
+    @keyframes iconPop {
+      0%   { opacity: 0; transform: scale(0.3) rotate(-20deg); }
+      100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    .login-welcome-title {
+      color: #fff;
+      font-size: 22px;
+      font-weight: 800;
+      margin: 0 0 4px;
+      text-shadow: 0 3px 14px rgba(0, 0, 0, 0.45);
+      letter-spacing: -0.3px;
+      animation: fadeDown 0.6s ease 0.4s both;
+    }
+
+    .login-welcome-sub {
+      color: rgba(255, 255, 255, 0.60);
+      font-size: 13px;
+      margin: 0;
+      animation: fadeDown 0.6s ease 0.5s both;
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card body padding */
+    .modal-body.refined {
+      padding: 24px 36px 30px !important;
+    }
+
+    /* Modal header inside card */
+    .modal-header.refined {
+      display: none !important;
+    }
+
+    /* Labels */
+    .modal-body.refined label {
+      color: rgba(255, 255, 255, 0.88) !important;
+      font-size: 13px !important;
+      letter-spacing: 0.4px;
+      animation: fadeLeft 0.5s ease both;
+    }
+    .modal-body.refined label:first-child  { animation-delay: 0.55s; }
+    .modal-body.refined label:nth-child(3) { animation-delay: 0.70s; }
+
+    /* Inputs */
+    .modal-body.refined input {
+      background: rgba(255, 255, 255, 0.13) !important;
+      border: 1px solid rgba(255, 255, 255, 0.28) !important;
+      color: #fff !important;
+      border-radius: 13px !important;
+      padding: 13px 16px !important;
+      font-size: 14px !important;
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s !important;
+      animation: fadeLeft 0.5s ease both;
+    }
+    #loginUser { animation-delay: 0.60s; }
+    #loginPass { animation-delay: 0.75s; }
+
+    .modal-body.refined input::placeholder {
+      color: rgba(255, 255, 255, 0.42) !important;
+    }
+
+    .modal-body.refined input:focus {
+      background: rgba(255, 255, 255, 0.22) !important;
+      border-color: rgba(255, 255, 255, 0.58) !important;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.12) !important;
+      outline: none !important;
+    }
+
+    @keyframes fadeLeft {
+      from { opacity: 0; transform: translateX(-18px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* Password eye icon */
+    .toggle-pass.refined {
+      color: rgba(255, 255, 255, 0.65) !important;
+    }
+    .toggle-pass.refined:hover {
+      color: #fff !important;
+    }
+
+    /* Login button with shimmer sweep */
+    #loginBtn {
+      background: linear-gradient(135deg, #1976d2 0%, #003fa3 100%) !important;
+      border-radius: 14px !important;
+      padding: 14px !important;
+      font-size: 16px !important;
+      letter-spacing: 0.5px !important;
+      position: relative !important;
+      overflow: hidden !important;
+      box-shadow: 0 8px 24px rgba(0, 74, 173, 0.55) !important;
+      transition: transform 0.22s ease, box-shadow 0.22s ease !important;
+      animation: fadeUp 0.6s ease 0.85s both;
+    }
+
+    #loginBtn::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -80%;
+      width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.32), transparent);
+      animation: shimmerSweep 2.8s ease infinite 1.5s;
+    }
+
+    @keyframes shimmerSweep {
+      0%   { left: -80%; }
+      100% { left: 160%; }
+    }
+
+    #loginBtn:hover {
+      transform: translateY(-3px) !important;
+      box-shadow: 0 14px 36px rgba(0, 74, 173, 0.65) !important;
+    }
+
+    #loginBtn:active {
+      transform: translateY(-1px) !important;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Close button on glass */
+    .close-btn.refined {
+      position: absolute !important;
+      top: 18px !important;
+      right: 20px !important;
+      color: rgba(255, 255, 255, 0.55) !important;
+      font-size: 24px !important;
+      transition: color 0.2s, transform 0.25s !important;
+      z-index: 10;
+      animation: fadeDown 0.4s ease 0.3s both;
+    }
+
+    .close-btn.refined:hover {
+      color: #fff !important;
+      transform: rotate(90deg) scale(1.1) !important;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="brand">
+      <div class="logo">🏫</div>
+      <div>
+        <div class="school-name" id="schoolName">Kagzso School</div>
+        <div class="tag">Admin Portal</div>
+      </div>
+    </div>
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">☰</button>
+    <div class="actions">
+      <button id="homeBtn" class="btn ghost">Home</button>
+      <button id="openUser" class="btn ghost">Open User Portal</button>
+      <button id="toggleLeavePanel" class="btn ghost">Toggle Leave Panel</button>
+      <button id="toggleReports" class="btn ghost">📊 Reports & Analytics</button>
+      <button id="genBtn" class="btn primary" style="display:none">Generate</button>
+      <button id="publishBtn" class="btn primary">Publish</button>
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <button class="mobile-menu-close" id="mobileMenuClose" aria-label="Close">×</button>
+    <button class="mobile-menu-item" onclick="document.getElementById('homeBtn').click(); closeMobileMenu();">🏠 Home</button>
+    <button class="mobile-menu-item" onclick="document.getElementById('openUser').click(); closeMobileMenu();">👥 User Portal</button>
+    <button class="mobile-menu-item" onclick="document.getElementById('toggleLeavePanel').click(); closeMobileMenu();">📅 Leave Panel</button>
+    <button class="mobile-menu-item" onclick="document.getElementById('toggleReports').click(); closeMobileMenu();">📊 Reports & Analytics</button>
+    <button class="mobile-menu-item" onclick="document.getElementById('genBtn').click(); closeMobileMenu();" style="display:none">⚙️ Generate</button>
+    <button class="mobile-menu-item" onclick="document.getElementById('publishBtn').click(); closeMobileMenu();">📤 Publish</button>
+  </div>
+
+  <main class="container refined" id="mainContent">
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal refined show">
+      <div class="modal-overlay refined"></div>
+
+      <!-- Floating background orbs -->
+      <div class="login-orb login-orb-1"></div>
+      <div class="login-orb login-orb-2"></div>
+      <div class="login-orb login-orb-3"></div>
+      <div class="login-orb login-orb-4"></div>
+
+      <div class="modal-content refined">
+        <button id="closeLogin" class="close-btn refined" title="Close">×</button>
+
+        <!-- Welcome banner -->
+        <div class="login-welcome-banner">
+          <span class="login-welcome-icon">🏫</span>
+          <div class="login-welcome-title">Kagzso Admin Portal</div>
+          <div class="login-welcome-sub">Sign in to access the dashboard</div>
+        </div>
+
+        <div class="modal-header refined">
+          <h2>Kagzso Admin Portal</h2>
+        </div>
+        <div class="modal-body refined">
+          <label for="loginUser">Username</label>
+          <input id="loginUser" placeholder="Enter username" />
+          <label for="loginPass">Password</label>
+          <div class="password-wrap refined">
+            <input id="loginPass" type="password" placeholder="Enter password" />
+            <button type="button" id="togglePass" class="toggle-pass refined">👁️</button>
+          </div>
+          <div class="actions-row refined">
+            <button id="loginBtn" class="btn primary full">Login</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- Leave & Substitution Panel (Hidden by default) -->
+  <section class="card section-card" id="leavePanel" style="display:none;">
+    <div class="section-card-header" style="background:linear-gradient(135deg,#8b5cf6 0%,#6d28d9 55%,#4c1d95 100%)">
+      <div class="section-header-left">
+        <div class="section-header-icon">📋</div>
+        <div>
+          <div class="section-header-title">Leave Requests</div>
+          <div class="section-header-sub">Review and manage teacher leave applications</div>
+        </div>
+      </div>
+      <div class="section-header-actions">
+        <div class="lv-filter-wrap">
+          <span class="lv-filter-icon">🔍</span>
+          <select id="teacherSelect" class="lv-teacher-select"></select>
+        </div>
+      </div>
+    </div>
+    <div class="section-card-body">
+      <!-- Status filter chips -->
+      <div class="lv-chips">
+        <button class="lv-chip active" data-filter="all">All</button>
+        <button class="lv-chip pending" data-filter="Pending">⏳ Pending</button>
+        <button class="lv-chip approved" data-filter="Approved">✅ Approved</button>
+        <button class="lv-chip rejected" data-filter="Rejected">❌ Rejected</button>
+      </div>
+      <!-- Leave cards grid -->
+      <div id="noTeacherSelectedMessage" class="no-teacher-message" style="display:none;">
+        <div class="message-icon">👤</div>
+        <h3>No Leave Requests</h3>
+        <p>Select a teacher or change the filter to view leave requests.</p>
+      </div>
+      <div class="lv-cards-grid" id="leaveCardPanel"></div>
+    </div>
+  </section>
+
+  <!-- Reports & Analytics Dashboard (Hidden by default) -->
+  <section class="card section-card" id="reportsPanel" style="display: none;">
+    <div class="section-card-header" style="background:linear-gradient(135deg,#0ea5e9 0%,#0284c7 55%,#0369a1 100%)">
+      <div class="section-header-left">
+        <div class="section-header-icon">📊</div>
+        <div>
+          <div class="section-header-title">Reports &amp; Analytics</div>
+          <div class="section-header-sub">Insights on leave, attendance, salary &amp; substitutes</div>
+        </div>
+      </div>
+    </div>
+    <div class="rpt-tab-bar">
+      <button class="rpt-tab active" data-tab="overview">📋 Overview</button>
+      <button class="rpt-tab" data-tab="leaves">📅 Leave History</button>
+      <button class="rpt-tab" data-tab="attendance">🗓️ Attendance</button>
+      <button class="rpt-tab" data-tab="salary">💰 Salary</button>
+      <button class="rpt-tab" data-tab="substitutes">🔄 Substitutes</button>
+    </div>
+    <div class="rpt-tab-body">
+
+    <!-- Overview Tab -->
+    <div class="tab-content rpt-panel active" id="tab-overview">
+      <div class="stats-grid">
+        <div class="stat-card clickable" data-card-type="totalTeachers">
+          <div class="stat-icon">👥</div>
+          <div class="stat-value" id="statTotalTeachers">-</div>
+          <div class="stat-label">Total Teachers</div>
+        </div>
+        <div class="stat-card clickable" data-card-type="pendingLeaves">
+          <div class="stat-icon">📅</div>
+          <div class="stat-value" id="statPendingLeaves">-</div>
+          <div class="stat-label">Pending Leaves</div>
+        </div>
+        <div class="stat-card clickable" data-card-type="approvedLeaves">
+          <div class="stat-icon">✅</div>
+          <div class="stat-value" id="statApprovedLeaves">-</div>
+          <div class="stat-label">Approved This Month</div>
+        </div>
+        <div class="stat-card clickable" data-card-type="substitutes">
+          <div class="stat-icon">🔄</div>
+          <div class="stat-value" id="statSubstitutes">-</div>
+          <div class="stat-label">Active Substitutes</div>
+        </div>
+        <div class="stat-card clickable" id="topLeaveTakerCard" style="display: none;" data-card-type="topLeaveTaker">
+          <div class="stat-icon">📊</div>
+          <div class="stat-value" id="topLeaveTakerValue">-</div>
+          <div class="stat-label" id="topLeaveTakerLabel">Top Leave Taker</div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <div class="chart-header">
+          <h3>Leave Trends Chart</h3>
+          <div class="chart-filters">
+            <input type="date" id="chartStartDate" />
+            <span>to</span>
+            <input type="date" id="chartEndDate" />
+            <button class="btn primary small" onclick="applyChartFilter()">Apply</button>
+            <button class="btn ghost small" onclick="resetChartFilter()">Reset</button>
+          </div>
+        </div>
+        <canvas id="leaveTrendChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Leave History Tab -->
+    <div class="tab-content rpt-panel" id="tab-leaves">
+      <div class="filter-bar">
+        <div class="select-wrapper">
+          <select id="leaveHistoryFilter">
+            <option value="all">All Leaves</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="pending">Pending</option>
+          </select>
+        </div>
+        <input type="month" id="leaveHistoryMonth" />
+        <button class="btn primary" onclick="loadLeaveHistory()">Filter</button>
+      </div>
+      <div id="leaveHistoryTable"></div>
+    </div>
+
+    <!-- Attendance & Visits Tab -->
+    <div class="tab-content rpt-panel" id="tab-attendance">
+      <div class="filter-bar">
+        <div class="select-wrapper">
+          <select id="teacherAttendanceFilter">
+            <option value="all">All Teachers</option>
+          </select>
+        </div>
+        <input type="month" id="attendanceMonth" />
+        <button class="btn primary" onclick="loadAttendanceData()">Load</button>
+        <button class="btn ghost" onclick="toggleAttendanceView()" id="toggleViewBtn">📋 Table View</button>
+      </div>
+      <div class="attendance-grid" id="attendanceGrid"></div>
+      <div class="attendance-table-container" id="attendanceTableContainer" style="display: none;"></div>
+    </div>
+
+    <!-- Salary & Working Days Tab -->
+    <div class="tab-content rpt-panel" id="tab-salary">
+      <div class="filter-bar">
+        <div class="select-wrapper">
+          <select id="salaryTeacherFilter">
+            <option value="all">All Teachers</option>
+          </select>
+        </div>
+        <input type="month" id="salaryMonth" />
+        <button class="btn primary" onclick="loadSalaryData()">Calculate</button>
+      </div>
+      <div id="salaryTable"></div>
+    </div>
+
+    <!-- Substitutes & Overtime Tab -->
+    <div class="tab-content rpt-panel" id="tab-substitutes">
+      <div class="filter-bar">
+        <input type="month" id="substituteMonth" />
+        <button class="btn primary" onclick="loadSubstituteData()">Load</button>
+      </div>
+      <div id="substituteTable"></div>
+    </div>
+    </div>
+  </section>
+
+    <!-- School Config -->
+    <section class="card config-card" id="configCard">
+      <div class="config-card-header">
+        <div class="config-header-left">
+          <div class="config-header-icon">🏫</div>
+          <div>
+            <div class="config-header-title">School Configuration</div>
+            <div class="config-header-sub">Manage your school's timetable settings</div>
+          </div>
+        </div>
+      </div>
+      <div class="config-fields-grid">
+        <div class="config-field-item">
+          <div class="config-field-icon" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">🏫</div>
+          <div class="config-field-body">
+            <label class="config-label" for="confName">School Name</label>
+            <input id="confName" class="config-input" placeholder="e.g. Kagzso School" />
+          </div>
+        </div>
+        <div class="config-field-item">
+          <div class="config-field-icon" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">🕘</div>
+          <div class="config-field-body">
+            <label class="config-label" for="confStart">Start Time</label>
+            <input id="confStart" class="config-input" placeholder="e.g. 9:00 AM" />
+          </div>
+        </div>
+        <div class="config-field-item">
+          <div class="config-field-icon" style="background:linear-gradient(135deg,#10b981,#059669)">📚</div>
+          <div class="config-field-body">
+            <label class="config-label" for="confPeriods">Total Periods</label>
+            <input id="confPeriods" class="config-input" type="number" placeholder="e.g. 8" min="1" />
+          </div>
+        </div>
+        <div class="config-field-item">
+          <div class="config-field-icon" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">⏱️</div>
+          <div class="config-field-body">
+            <label class="config-label" for="confMins">Minutes per Period</label>
+            <input id="confMins" class="config-input" type="number" placeholder="e.g. 45" min="1" />
+          </div>
+        </div>
+      </div>
+      <div class="config-footer">
+        <button id="runMigration" class="btn" style="background:#f1f5f9;color:#6366f1;border:1.5px solid #e0e7ff;font-size:12.5px;padding:8px 16px" title="Fix 500 errors — adds photo & username columns to DB">🔧 Fix DB Columns</button>
+        <button id="saveConfig" class="btn config-save-btn">💾 Save Configuration</button>
+      </div>
+    </section>
+
+    <!-- Teachers -->
+    <section class="card section-card" id="teachersCard">
+      <div class="section-card-header" style="background:linear-gradient(135deg,#10b981 0%,#059669 55%,#047857 100%)">
+        <div class="section-header-left">
+          <div class="section-header-icon">👨‍🏫</div>
+          <div>
+            <div class="section-header-title">Teachers</div>
+            <div class="section-header-sub">Manage teacher accounts, subjects &amp; passwords</div>
+          </div>
+        </div>
+        <div class="section-header-actions">
+          <button id="loadTeachers" class="sec-btn sec-btn-outline">🔄 Load Teachers</button>
+          <button id="addTeacher" class="sec-btn sec-btn-white">➕ Add Teacher</button>
+        </div>
+      </div>
+      <div class="section-card-body">
+        <div id="teachersTable" class="table-wrap">Loading teachers...</div>
+      </div>
+    </section>
+
+    <!-- Class Timetable Editor -->
+    <section class="card section-card" id="classEditorCard">
+      <div class="section-card-header" style="background:linear-gradient(135deg,#3b82f6 0%,#2563eb 55%,#1d4ed8 100%)">
+        <div class="section-header-left">
+          <div class="section-header-icon">📅</div>
+          <div>
+            <div class="section-header-title" id="classEditorTitle">Class Timetable Editor</div>
+            <div class="section-header-sub">Build and edit weekly timetables per class</div>
+          </div>
+        </div>
+        <div class="section-header-actions">
+          <div class="class-select-group">
+            <span class="class-select-label">Class</span>
+            <div class="select-wrapper compact-select">
+              <select id="selectClass"></select>
+            </div>
+          </div>
+          <button onclick="createNewClassPrompt()" class="sec-btn sec-btn-white">➕ Add Class</button>
+          <button onclick="deleteCurrentClassPrompt()" class="sec-btn sec-btn-danger">❌ Delete</button>
+        </div>
+      </div>
+      <div class="section-card-body">
+        <div id="classEditor" class="table-wrap">Select class to edit timetable.</div>
+        <div class="editor-footer-btns">
+          <button onclick="addClassRow()" class="sec-btn sec-btn-green">➕ Add Row</button>
+          <button onclick="addClassColumn()" class="sec-btn sec-btn-green">➕ Add Period</button>
+          <button onclick="deleteClassColumn()" class="sec-btn sec-btn-red">➖ Delete Period</button>
+          <button id="saveClass" class="sec-btn sec-btn-blue">💾 Save Timetable</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Draft / Publish -->
+    <section class="card section-card" id="publishCard">
+      <div class="section-card-header" style="background:linear-gradient(135deg,#f59e0b 0%,#d97706 55%,#b45309 100%)">
+        <div class="section-header-left">
+          <div class="section-header-icon">📤</div>
+          <div>
+            <div class="section-header-title">Draft &amp; Publish</div>
+            <div class="section-header-sub">Review substitutions and publish the timetable</div>
+          </div>
+        </div>
+        <div class="section-header-actions">
+          <button id="publishConfirm" class="sec-btn sec-btn-white">🚀 Publish (requires confirm)</button>
+        </div>
+      </div>
+      <div class="section-card-body">
+        <div id="subSummary" class="sub-summary-box" style="display: none;">
+          <span class="sub-summary-empty">No substitutions yet. Generate a timetable first.</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Substitution Preview Modal -->
+  <div id="subPreviewModal" class="sub-preview-overlay" style="display:none;">
+    <div class="sub-preview-modal">
+      <div class="sub-preview-header">
+        <div class="sub-preview-header-icon">🔄</div>
+        <div class="sub-preview-header-text">
+          <div class="sub-preview-title">Auto-Assign Substitutes</div>
+          <div class="sub-preview-sub" id="subPreviewTeacherLine">Reviewing substitution plan…</div>
+        </div>
+        <button class="sub-preview-close-btn" id="subPreviewClose" title="Cancel">✕</button>
+      </div>
+      <div class="sub-preview-body">
+        <div class="sub-preview-notice">
+          <span class="sub-preview-notice-icon">ℹ️</span>
+          The system will auto-assign the best available substitute for each affected period when you approve this leave.
+        </div>
+        <div id="subPreviewContent"></div>
+      </div>
+      <div class="sub-preview-footer">
+        <button class="sec-btn sec-btn-outline" id="subPreviewCancelBtn">Cancel</button>
+        <button class="sec-btn sec-btn-green" id="subPreviewConfirmBtn">✅ Approve &amp; Assign</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin.js"></script>
+  <script>
+    // 👁️ Password toggle
+    const toggle = document.getElementById('togglePass');
+    const pass = document.getElementById('loginPass');
+    toggle.addEventListener('click', () => {
+      const type = pass.type === 'password' ? 'text' : 'password';
+      pass.type = type;
+      toggle.textContent = type === 'password' ? '👁️' : '🙈';
+    });
+
+    // ❌ Close login modal
+    const closeLogin = document.getElementById('closeLogin');
+    const loginModal = document.getElementById('loginModal');
+    const mainContent = document.getElementById('mainContent');
+    let blurOverlay = null;
+
+    closeLogin.addEventListener('click', () => {
+      loginModal.style.display = 'none';
+
+      blurOverlay = document.createElement('div');
+      blurOverlay.classList.add('blur-overlay');
+      blurOverlay.innerHTML = `
+        <div class="admin-hero">
+          <div class="admin-hero-orb admin-hero-orb-1"></div>
+          <div class="admin-hero-orb admin-hero-orb-2"></div>
+          <div class="admin-hero-orb admin-hero-orb-3"></div>
+          <div class="admin-hero-card">
+            <span class="admin-hero-tag" style="display:none">School Management System</span>
+            <span class="admin-hero-icon">🏫</span>
+            <p class="admin-hero-school">Kagzso</p>
+            <h1 class="admin-hero-title">Admin Portal</h1>
+            <p class="admin-hero-subtitle">Timetable & Leave Management</p>
+            <div class="admin-hero-divider"></div>
+            <p class="admin-hero-desc">Sign in to manage timetables, review leave requests,<br>and access school analytics in one place.</p>
+            <div class="admin-hero-badges">
+              <span class="admin-hero-badge">📋 Leave Management</span>
+              <span class="admin-hero-badge">📅 Timetable Editor</span>
+              <span class="admin-hero-badge">📊 Analytics</span>
+            </div>
+            <button class="admin-hero-btn" id="reLoginBtn">
+              🔑 Sign In to Dashboard
+              <span class="admin-hero-btn-arrow">→</span>
+            </button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(blurOverlay);
+
+      document.getElementById('reLoginBtn').addEventListener('click', () => {
+        // Create loader if not already present
+        let loader = document.getElementById('adminLoader');
+        if (!loader) {
+          loader = document.createElement('div');
+          loader.id = 'adminLoader';
+          loader.innerHTML = `
+            <div class="loader-inner">
+              <div class="loader-ring-wrap">
+                <div class="loader-ring-outer"></div>
+                <div class="loader-ring"></div>
+                <div class="loader-emoji-bg"></div>
+                <span class="loader-emoji">🏫</span>
+              </div>
+              <div class="loader-school">Kagzso</div>
+              <div class="loader-title">Admin Portal</div>
+              <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+            </div>
+          `;
+          document.body.appendChild(loader);
+        }
+
+        // Ripple in
+        loader.className = 'loader-enter';
+
+        // After ripple completes, switch to login modal
+        setTimeout(() => {
+          blurOverlay.remove();
+          loginModal.style.display = 'flex';
+
+          // Ripple out
+          loader.className = 'loader-exit';
+          setTimeout(() => {
+            loader.className = '';
+          }, 480);
+        }, 750);
+      });
+    });
+
+    // 🟢 Toggle Leave Panel visibility
+    const toggleLeavePanelBtn = document.getElementById('toggleLeavePanel');
+    const leaveSection = document.getElementById('leavePanel');
+    
+    if (toggleLeavePanelBtn && leaveSection) {
+      toggleLeavePanelBtn.addEventListener('click', () => {
+        const willBeVisible = leaveSection.style.display === 'none';
+        leaveSection.style.display = willBeVisible ? 'block' : 'none';
+        
+        // Hide reports panel when showing leave panel
+        const reportsPanel = document.getElementById('reportsPanel');
+        if (reportsPanel) reportsPanel.style.display = 'none';
+        
+        // Hide config card and other sections when leave panel is visible
+        const configCard = document.getElementById('configCard');
+        const teachersSection = document.querySelector('section#configCard + section.card');
+        const classEditorSection = document.querySelector('section#configCard + section.card + section.card');
+        const draftPublishSection = document.getElementById('publishConfirm')?.closest('section.card');
+        
+        if (configCard) configCard.style.display = willBeVisible ? 'none' : 'block';
+        if (teachersSection) teachersSection.style.display = willBeVisible ? 'none' : 'block';
+        if (classEditorSection) classEditorSection.style.display = willBeVisible ? 'none' : 'block';
+        if (draftPublishSection) draftPublishSection.style.display = willBeVisible ? 'none' : 'block';
+        
+        // Load all applied leaves when panel is opened (prepopulated)
+        if (willBeVisible && typeof loadPendingOnly === 'function') {
+          // Wait for panel to be fully visible and rendered before loading
+          setTimeout(() => {
+            const leaveCardPanel = document.getElementById('leaveCardPanel');
+            const leavePanelSection = document.getElementById('leavePanel');
+            // Double-check panel is visible before loading
+            if (leaveCardPanel && leavePanelSection && leavePanelSection.style.display !== 'none') {
+              loadPendingOnly();
+            }
+          }, 300);
+        }
+      });
+    }
+
+    // 🟢 Toggle Reports Panel visibility
+    const toggleReportsBtn = document.getElementById('toggleReports');
+    const reportsPanel = document.getElementById('reportsPanel');
+    
+    if (toggleReportsBtn && reportsPanel) {
+      // Remove any existing listeners
+      const newToggleBtn = toggleReportsBtn.cloneNode(true);
+      toggleReportsBtn.parentNode.replaceChild(newToggleBtn, toggleReportsBtn);
+      
+      newToggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        
+        // Get current visibility state - simple and reliable check
+        // Check if panel is currently visible by looking at computed display
+        const computedDisplay = window.getComputedStyle(reportsPanel).display;
+        const isCurrentlyVisible = computedDisplay !== 'none';
+        
+        const willBeVisible = !isCurrentlyVisible;
+        
+        // Toggle reports panel with explicit display value
+        reportsPanel.style.display = willBeVisible ? 'block' : 'none';
+        
+        // Hide leave panel when showing reports
+        if (leaveSection) {
+          leaveSection.style.display = 'none';
+        }
+        
+        // Get all sections to show/hide
+        const configCard = document.getElementById('configCard');
+        const teachersSection = document.querySelector('section#configCard + section.card');
+        const classEditorSection = document.querySelector('section#configCard + section.card + section.card');
+        const draftPublishSection = document.getElementById('publishConfirm')?.closest('section.card');
+        
+        // Show/hide config and other sections based on reports panel visibility
+        // When reports panel is visible, hide config and other sections
+        // When reports panel is hidden, show config and other sections
+        if (configCard) {
+          configCard.style.display = willBeVisible ? 'none' : 'block';
+        }
+        if (teachersSection) {
+          teachersSection.style.display = willBeVisible ? 'none' : 'block';
+        }
+        if (classEditorSection) {
+          classEditorSection.style.display = willBeVisible ? 'none' : 'block';
+        }
+        if (draftPublishSection) {
+          draftPublishSection.style.display = willBeVisible ? 'none' : 'block';
+        }
+        
+        // Initialize dashboard when panel is opened
+        if (willBeVisible) {
+          setTimeout(() => {
+            if (typeof initReportsPanel === 'function') {
+              initReportsPanel();
+            }
+            if (typeof loadOverviewData === 'function') {
+              loadOverviewData();
+            }
+          }, 100);
+        }
+      });
+    }
+
+    // Optionally, simulate login (for testing)
+    
+  </script>
+  <script src="dashboard.js"></script>
+</body>
+</html>
