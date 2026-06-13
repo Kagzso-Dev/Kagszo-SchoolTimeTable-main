@@ -204,6 +204,8 @@ async function ensureLogin() {
       loggedInUser = found["Teachers Name"];
       // Store globally for leave application
       window.loggedInTeacherName = loggedInUser;
+      // Persist in sessionStorage — survives refresh but clears when tab is closed
+      sessionStorage.setItem('teacherSession', JSON.stringify({ name: loggedInUser, at: Date.now() }));
       updateAuthUI();
       Toast.success(`Welcome, ${loggedInUser}!`);
       return true;
@@ -225,6 +227,52 @@ async function ensureLogin() {
    --------------------------- */
 document.addEventListener('DOMContentLoaded', async () => {
   await initAdmin();
+
+  // Restore teacher session if same tab was refreshed
+  const saved = sessionStorage.getItem('teacherSession');
+  if (saved) {
+    try {
+      const { name } = JSON.parse(saved);
+      if (name) {
+        isAuthenticated = true;
+        loggedInUser = name;
+        window.loggedInTeacherName = name;
+        updateAuthUI();
+      }
+    } catch (_) { sessionStorage.removeItem('teacherSession'); }
+  }
+
+  // Auto-logout when this tab is closed / navigated away
+  window.addEventListener('pagehide', () => {
+    sessionStorage.removeItem('teacherSession');
+    isAuthenticated = false;
+    loggedInUser = null;
+    window.loggedInTeacherName = null;
+  });
+
+  // Listen for admin logout broadcast — when admin closes their portal,
+  // force all teacher sessions out immediately
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'adminLogout' && e.newValue) {
+      if (isAuthenticated) {
+        const name = loggedInUser;
+        isAuthenticated = false;
+        loggedInUser = null;
+        window.loggedInTeacherName = null;
+        sessionStorage.removeItem('teacherSession');
+        if (window._teacherPicker) window._teacherPicker.reset();
+        updateAuthUI();
+        // Hide teacher view, go back to classes list
+        const viewArea = document.getElementById('viewArea');
+        if (viewArea) viewArea.style.display = 'none';
+        const leaveSection = document.getElementById('leaveSection');
+        if (leaveSection) leaveSection.style.display = 'none';
+        const classes = document.getElementById('classes');
+        if (classes) { classes.style.display = 'grid'; }
+        Toast.info(name ? `Session ended for ${name} — admin portal closed` : 'Session ended');
+      }
+    }
+  });
 });
 
 async function initAdmin() {
@@ -1084,6 +1132,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
   isAuthenticated = false;
   loggedInUser = null;
   window.loggedInTeacherName = null;
+  sessionStorage.removeItem('teacherSession');
 
   // Reset teacher tab label
   const tabTeacher = document.getElementById('tabTeacher');

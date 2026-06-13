@@ -133,6 +133,20 @@ async function initAdmin() {
   // hide leave section initially
   if (leaveSection) leaveSection.style.display = 'none';
 
+  // Restore session if the same tab was refreshed (sessionStorage survives refresh, NOT tab close)
+  const saved = sessionStorage.getItem('adminSession');
+  if (saved) {
+    try {
+      const { user } = JSON.parse(saved);
+      if (user) {
+        modal.style.display = 'none';
+        window.loggedInAdmin = user;
+        loadInitial();
+        return;
+      }
+    } catch (_) { /* corrupted, fall through to login */ }
+  }
+
   modal.style.display = 'flex';
 
  document.getElementById("loginBtn").addEventListener("click", async () => {
@@ -162,6 +176,10 @@ async function initAdmin() {
       Toast.success(`Welcome, ${u}!`);
       // Store admin username globally for use in leave approval
       window.loggedInAdmin = u;
+      // Persist login for this tab only — sessionStorage clears on tab close
+      sessionStorage.setItem('adminSession', JSON.stringify({ user: u, at: Date.now() }));
+      // Broadcast to any open user-portal tabs that admin is active
+      localStorage.setItem('adminActive', '1');
       loadInitial();
     } else {
       Toast.error("Invalid username or password");
@@ -564,6 +582,18 @@ window.addEventListener('DOMContentLoaded', async () => {
   } catch (_err) {
     // Keep default school name if load fails
   }
+});
+
+// ── Auto-logout when tab/browser is closed ─────────────────────────────────
+// pagehide fires reliably on tab close, browser close, and navigation away.
+// We clear sessionStorage so the admin must log in again on next open.
+window.addEventListener('pagehide', () => {
+  sessionStorage.removeItem('adminSession');
+  window.loggedInAdmin = null;
+  // Signal all open user-portal tabs that admin has left → they should logout
+  localStorage.setItem('adminLogout', Date.now().toString());
+  // Clean up the active flag
+  localStorage.removeItem('adminActive');
 });
 
 
