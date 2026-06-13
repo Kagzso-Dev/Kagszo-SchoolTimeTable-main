@@ -242,13 +242,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (_) { sessionStorage.removeItem('teacherSession'); }
   }
 
-  // Auto-logout when this tab is closed / navigated away
-  window.addEventListener('pagehide', () => {
-    sessionStorage.removeItem('teacherSession');
-    isAuthenticated = false;
-    loggedInUser = null;
-    window.loggedInTeacherName = null;
-  });
+  // NOTE: sessionStorage is automatically destroyed by the browser when the tab is
+  // closed — no manual cleanup needed. Clearing it in pagehide would also fire on
+  // refresh and break the session-restore above, so we intentionally do NOT remove
+  // it here. The browser handles tab-close cleanup correctly on its own.
 
   // Listen for admin logout broadcast — when admin closes their portal,
   // force all teacher sessions out immediately

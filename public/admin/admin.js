@@ -585,14 +585,15 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ── Auto-logout when tab/browser is closed ─────────────────────────────────
-// pagehide fires reliably on tab close, browser close, and navigation away.
-// We clear sessionStorage so the admin must log in again on next open.
+// pagehide fires on tab close AND on page refresh.
+// We intentionally do NOT clear adminSession here — the browser destroys
+// sessionStorage automatically when the tab is truly closed, and NOT on refresh,
+// which is the exact behaviour we want (close = logout, refresh = stay logged in).
+// The only job here is to broadcast to open user-portal tabs.
 window.addEventListener('pagehide', () => {
-  sessionStorage.removeItem('adminSession');
-  window.loggedInAdmin = null;
-  // Signal all open user-portal tabs that admin has left → they should logout
+  // Broadcast logout signal to all open user-portal tabs via localStorage.
+  // localStorage storage events fire in other tabs but NOT in this one.
   localStorage.setItem('adminLogout', Date.now().toString());
-  // Clean up the active flag
   localStorage.removeItem('adminActive');
 });
 
