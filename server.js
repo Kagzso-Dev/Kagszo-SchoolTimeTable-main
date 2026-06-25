@@ -193,13 +193,9 @@ app.get('/api/poll', (_req, res) => {
 });
 
 // Base routes - handle root and HTML files
+// Root → redirect to admin portal first
 app.get('/', (req, res) => {
-  try {
-    res.sendFile(path.join(__dirname, 'public', 'user', 'index.html'));
-  } catch (err) {
-    console.error('Error serving root:', err);
-    res.status(500).send('Error loading page');
-  }
+  res.redirect('/admin');
 });
 
 app.get('/user', (req, res) => {

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(cd \"c:\\\\Users\\\\Admin\\\\OneDrive\\\\Desktop\\\\Kagszo-SchoolTimeTable-main\"; $env:PORT = \"4000\"; node server.js)",
+      "PowerShell(Get-Process -Name node -ErrorAction SilentlyContinue | Stop-Process -Force; Start-Sleep -Milliseconds 800; cd \"c:\\\\Users\\\\Admin\\\\OneDrive\\\\Desktop\\\\Kagszo-SchoolTimeTable-main\"; $env:PORT = \"4000\"; node server.js)"
+    ]
+  }
+}
